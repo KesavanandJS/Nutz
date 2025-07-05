@@ -336,7 +336,6 @@ class SocialMediaApp {
     }
 }
 
-// Initialize the app
 document.addEventListener('DOMContentLoaded', () => {
     new SocialMediaApp();
 });

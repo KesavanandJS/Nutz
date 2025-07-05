@@ -163,55 +163,7 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// Change Password
-app.post('/api/change-password', async (req, res) => {
-    try {
-        if (!req.session.userId) {
-            return res.status(401).json({ error: 'Not authenticated' });
-        }
-        
-        const { currentPassword, newPassword } = req.body;
-        
-        if (!currentPassword || !newPassword) {
-            return res.status(400).json({ error: 'Both current and new passwords are required' });
-        }
-        
-        if (newPassword.length < 6) {
-            return res.status(400).json({ error: 'New password must be at least 6 characters long' });
-        }
-        
-        const users = readUsers();
-        const userIndex = users.findIndex(u => u.id === req.session.userId);
-        
-        if (userIndex === -1) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-        
-        const user = users[userIndex];
-        
-        if (!await bcrypt.compare(currentPassword, user.password)) {
-            return res.status(400).json({ error: 'Current password is incorrect' });
-        }
-        
-        // Check if new password is one of the last 3 passwords
-        const lastThreePasswords = user.passwordHistory.slice(-3);
-        for (const oldPassword of lastThreePasswords) {
-            if (await bcrypt.compare(newPassword, oldPassword)) {
-                return res.status(400).json({ error: 'New password cannot be one of your last 3 passwords' });
-            }
-        }
-        
-        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-        user.password = hashedNewPassword;
-        user.passwordHistory.push(hashedNewPassword);
-        
-        writeUsers(users);
-        res.json({ success: true });
-    } catch (error) {
-        console.error('Change password error:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
+
 
 // Create Post
 app.post('/api/posts', (req, res) => {
@@ -308,6 +260,7 @@ app.post('/api/logout', (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+
 
 // Error handling middleware
 app.use((err, req, res, next) => {

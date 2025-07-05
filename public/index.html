@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutz</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav id="navbar" class="navbar hidden">
+        <div class="nav-container">
+            <h1>Nutz Interview</h1>
+            <div class="nav-items">
+                <span id="username-display"></span>
+                <button id="change-password-btn" class="nav-btn">Change Password</button>
+                <button id="logout-btn" class="nav-btn">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Auth Section -->
+    <div id="auth-section" class="auth-container">
+        <div class="form-box">
+            <form class="form" id="auth-form">
+                <span class="title" id="auth-title">Log in</span>
+                <span class="subtitle" id="auth-subtitle"> Please log in to your account </span>
+                <div class="form-container">
+                    <input type="text" class="input" id="username" placeholder="Username or Email" required>
+                    <input type="email" class="input" id="email" placeholder="Email" style="display: none;">
+                    <input type="password" class="input" id="password" placeholder="Password" required>
+                </div>
+                <button type="submit" id="auth-submit">Log in</button>
+                <p id="auth-switch-text">Don't have an account? <a href="#" id="auth-switch-link">Sign up</a></p>
+            </form>
+            
+        </div>
+    </div>
+
+    <!-- Main App Section -->
+    <div id="main-section" class="main-container hidden">
+        <!-- Create Post -->
+        <div class="create-post">
+            <h3>Create a Post</h3>
+            <form id="post-form">
+                <textarea id="post-content" placeholder="What's on your mind?" required></textarea>
+                <div class="post-options">
+                    <label>
+                        <input type="checkbox" id="post-private"> Private post
+                    </label>
+                    <button type="submit">Post</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Posts Feed -->
+        <div class="posts-container">
+            <h3>Posts</h3>
+            <div id="posts-feed"></div>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="change-password-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="form-box modal-form-box">
+                <form class="form" id="change-password-form">
+                    <span class="title">Change Password</span>
+                    <span class="subtitle">Enter your current and new password.</span>
+                    <div class="form-container">
+                        <input type="password" class="input" id="current-password" placeholder="Current Password" required>
+                        <input type="password" class="input" id="new-password" placeholder="New Password" required>
+                        <input type="password" class="input" id="confirm-password" placeholder="Confirm New Password" required>
+                    </div>
+                    <button type="submit">Change Password</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+
+                    <input type="password" id="confirm-password" required>
+                </div>
+                <button type="submit">Change Password</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

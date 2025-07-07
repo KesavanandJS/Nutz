@@ -3,10 +3,11 @@
     "id": 1751695301992,
     "username": "kesavanand",
     "email": "kesavanand20@gmail.com",
-    "password": "$2b$10$KbgW1uFlaZuIsUUasUUs/eFlRvvH23EG9nXI3BqE3ggk.t666kP4C",
+    "password": "$2b$10$uGMcVJqNJflfc2K9c/ahxORlQyI2kK07Tndtbc8QChaiLlyrb.Ypm",
     "passwordHistory": [
       "$2b$10$Y1jmBCScrGRoY5GNvh7vSusQJ0oFHGIo.VmKWuKBVDVSTMqKq0TzO",
-      "$2b$10$KbgW1uFlaZuIsUUasUUs/eFlRvvH23EG9nXI3BqE3ggk.t666kP4C"
+      "$2b$10$KbgW1uFlaZuIsUUasUUs/eFlRvvH23EG9nXI3BqE3ggk.t666kP4C",
+      "$2b$10$uGMcVJqNJflfc2K9c/ahxORlQyI2kK07Tndtbc8QChaiLlyrb.Ypm"
     ],
     "createdAt": "2025-07-05T06:01:41.992Z"
   },
@@ -20,5 +21,15 @@
       "$2b$10$oY5TFyeu04oNj0DpcqD4ged3ilisKhOOsIxJekD6nnpFyrckwLpb6"
     ],
     "createdAt": "2025-07-05T07:19:32.380Z"
+  },
+  {
+    "id": 1751703904600,
+    "username": "anand",
+    "email": "anand@gmail.com",
+    "password": "$2b$10$p95bN618EBT.kJ7/8BSd4O2bt9OPOVJYhc1jgp.RmBSbM.BVSN1Oy",
+    "passwordHistory": [
+      "$2b$10$p95bN618EBT.kJ7/8BSd4O2bt9OPOVJYhc1jgp.RmBSbM.BVSN1Oy"
+    ],
+    "createdAt": "2025-07-05T08:25:04.600Z"
   }
 ]

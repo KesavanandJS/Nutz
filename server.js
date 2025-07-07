@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(bodyParser.json());
@@ -261,6 +261,77 @@ app.post('/api/logout', (req, res) => {
     }
 });
 
+// Change Password - Enhanced with better error handling
+app.post('/api/change-password', async (req, res) => {
+    console.log('Change password request received');
+    console.log('Session:', req.session);
+    console.log('Request body:', { ...req.body, currentPassword: '***', newPassword: '***' });
+    
+    try {
+        if (!req.session.userId) {
+            console.log('No session found');
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
+        
+        const { currentPassword, newPassword } = req.body;
+        
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ error: 'Both current and new passwords are required' });
+        }
+        
+        if (newPassword.length < 6) {
+            return res.status(400).json({ error: 'New password must be at least 6 characters long' });
+        }
+        
+        const users = readUsers();
+        const userIndex = users.findIndex(u => u.id === req.session.userId);
+        
+        if (userIndex === -1) {
+            console.log('User not found for session:', req.session.userId);
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        const user = users[userIndex];
+        console.log('Found user:', user.username);
+        
+        const currentPasswordMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!currentPasswordMatch) {
+            console.log('Current password incorrect');
+            return res.status(400).json({ error: 'Current password is incorrect' });
+        }
+        
+        // Check if new password is one of the last 3 passwords
+        const lastThreePasswords = user.passwordHistory ? user.passwordHistory.slice(-3) : [];
+        console.log('Checking against', lastThreePasswords.length, 'previous passwords');
+        
+        for (const oldPassword of lastThreePasswords) {
+            if (await bcrypt.compare(newPassword, oldPassword)) {
+                return res.status(400).json({ error: 'New password cannot be one of your last 3 passwords' });
+            }
+        }
+        
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedNewPassword;
+        
+        if (!user.passwordHistory) {
+            user.passwordHistory = [];
+        }
+        user.passwordHistory.push(hashedNewPassword);
+        
+        // Keep only last 5 passwords in history
+        if (user.passwordHistory.length > 5) {
+            user.passwordHistory = user.passwordHistory.slice(-5);
+        }
+        
+        writeUsers(users);
+        console.log('Password changed successfully for user:', user.username);
+        
+        res.json({ success: true, message: 'Password changed successfully' });
+    } catch (error) {
+        console.error('Change password error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {

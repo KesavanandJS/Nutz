@@ -1,7 +1,7 @@
 class SocialMediaApp {
     constructor() {
         this.currentUser = null;
-        this.isSignupMode = false; 
+        this.isSignupMode = false;
         this.init();
     }
 
@@ -11,20 +11,15 @@ class SocialMediaApp {
     }
 
     bindEvents() {
-       
         document.getElementById('auth-form').addEventListener('submit', (e) => this.handleAuth(e));
         document.getElementById('auth-switch-link').addEventListener('click', (e) => this.toggleAuthMode(e));
-
-       
         document.getElementById('logout-btn').addEventListener('click', () => this.logout());
         document.getElementById('change-password-btn').addEventListener('click', () => this.showChangePasswordModal());
-
-       
         document.getElementById('post-form').addEventListener('submit', (e) => this.createPost(e));
 
-       
+        // Change password modal events
         document.getElementById('change-password-form').addEventListener('submit', (e) => this.changePassword(e));
-        document.querySelector('.close').addEventListener('click', () => this.hideChangePasswordModal());
+        document.querySelector('#change-password-modal .close').addEventListener('click', () => this.hideChangePasswordModal());
         document.getElementById('change-password-modal').addEventListener('click', (e) => {
             if (e.target.id === 'change-password-modal') this.hideChangePasswordModal();
         });
@@ -33,12 +28,16 @@ class SocialMediaApp {
     async checkAuthentication() {
         try {
             const response = await fetch('/api/user');
+            console.log('Auth check response:', response.status);
+            
             if (response.ok) {
                 const data = await response.json();
+                console.log('User data:', data);
                 this.currentUser = data.user;
                 this.showMainSection();
                 this.loadPosts();
             } else {
+                console.log('Not authenticated, showing auth section');
                 this.showAuthSection();
             }
         } catch (error) {
@@ -68,7 +67,7 @@ class SocialMediaApp {
             switchText.innerHTML = 'Have an account? <a href="#" id="auth-switch-link">Log in</a>';
         } else {
             title.textContent = 'Log in';
-            subtitle.textContent = 'Please log in to your account.';
+            subtitle.textContent = 'Please log in to your account';
             usernameInput.placeholder = 'Username or Email';
             emailInput.style.display = 'none';
             emailInput.required = false;
@@ -76,10 +75,10 @@ class SocialMediaApp {
             switchText.innerHTML = 'Don\'t have an account? <a href="#" id="auth-switch-link">Sign up</a>';
         }
 
-        
+        // Re-bind the switch link event
         document.getElementById('auth-switch-link').addEventListener('click', (e) => this.toggleAuthMode(e));
-
         
+        // Clear form and alerts
         document.getElementById('auth-form').reset();
         this.clearAlerts();
     }
@@ -91,7 +90,8 @@ class SocialMediaApp {
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
 
-        // Validation
+        console.log('Login attempt for:', username);
+
         if (!username || !password) {
             this.showAlert('Please fill in all required fields', 'error');
             return;
@@ -102,7 +102,6 @@ class SocialMediaApp {
                 this.showAlert('Email is required for signup', 'error');
                 return;
             }
-            
             
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
@@ -127,12 +126,19 @@ class SocialMediaApp {
             });
 
             const data = await response.json();
+            console.log('Auth response:', response.status, data);
 
-            if (response.ok) {
+            if (response.ok && data.success && data.user) {
+                console.log('Setting current user:', data.user);
                 this.currentUser = data.user;
-                this.showMainSection();
-                await this.loadPosts();
-                this.showAlert(this.isSignupMode ? 'Account created successfully!' : 'Welcome back!', 'success');
+                
+                // Force page navigation
+                setTimeout(() => {
+                    this.showMainSection();
+                    this.loadPosts();
+                }, 100);
+                
+                this.showAlert(this.isSignupMode ? 'Account created successfully!' : 'Login successful!', 'success');
             } else {
                 this.showAlert(data.error || 'Authentication failed', 'error');
             }
@@ -223,6 +229,9 @@ class SocialMediaApp {
 
     showChangePasswordModal() {
         document.getElementById('change-password-modal').classList.remove('hidden');
+        // Clear form when opening
+        document.getElementById('change-password-form').reset();
+        this.clearAlerts();
     }
 
     hideChangePasswordModal() {
@@ -237,6 +246,8 @@ class SocialMediaApp {
         const currentPassword = document.getElementById('current-password').value;
         const newPassword = document.getElementById('new-password').value;
         const confirmPassword = document.getElementById('confirm-password').value;
+
+        this.clearAlerts();
 
         if (!currentPassword || !newPassword || !confirmPassword) {
             this.showAlert('All fields are required', 'error');
@@ -261,37 +272,61 @@ class SocialMediaApp {
         try {
             const response = await fetch('/api/change-password', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ currentPassword, newPassword })
+                headers: { 
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    currentPassword, 
+                    newPassword 
+                })
             });
 
             const data = await response.json();
 
-            if (response.ok) {
+            if (response.ok && data.success) {
                 this.hideChangePasswordModal();
                 this.showAlert('Password changed successfully!', 'success');
             } else {
-                this.showAlert(data.error, 'error');
+                this.showAlert(data.error || 'Failed to change password', 'error');
             }
         } catch (error) {
-            console.error('Change password error:', error);
-            this.showAlert('Error changing password', 'error');
+            console.error('Network error:', error);
+            this.showAlert('Unable to connect to server. Please try again.', 'error');
         }
-    }
-
-    showAuthSection() {
-        document.getElementById('auth-section').classList.remove('hidden');
-        document.getElementById('main-section').classList.add('hidden');
-        document.getElementById('navbar').classList.add('hidden');
     }
 
     showMainSection() {
-        document.getElementById('auth-section').classList.add('hidden');
-        document.getElementById('main-section').classList.remove('hidden');
-        document.getElementById('navbar').classList.remove('hidden');
+        console.log('Attempting to show main section');
+        
+        // Force clear all alerts
+        this.clearAlerts();
+        
+        // Hide auth section
+        const authSection = document.getElementById('auth-section');
+        authSection.classList.add('hidden');
+        
+        // Show main section
+        const mainSection = document.getElementById('main-section');
+        mainSection.classList.remove('hidden');
+        
+        // Show navbar
+        const navbar = document.getElementById('navbar');
+        navbar.classList.remove('hidden');
+        
+        // Update username display
         if (this.currentUser) {
-            document.getElementById('username-display').textContent = `Welcome, ${this.currentUser.username}`;
+            const usernameDisplay = document.getElementById('username-display');
+            usernameDisplay.textContent = `Welcome, ${this.currentUser.username}`;
         }
+        
+        console.log('Main section should now be visible');
+    }
+
+    showAuthSection() {
+        console.log('Showing auth section');
+        document.getElementById('auth-section').classList.remove('hidden');
+        document.getElementById('main-section').classList.add('hidden');
+        document.getElementById('navbar').classList.add('hidden');
     }
 
     showAlert(message, type) {
@@ -301,10 +336,9 @@ class SocialMediaApp {
         alert.className = `alert alert-${type}`;
         alert.textContent = message;
         
-        // Find the appropriate container for the alert
         let container;
         if (!document.getElementById('auth-section').classList.contains('hidden')) {
-            container = document.querySelector('.form');
+            container = document.querySelector('#auth-section .form');
         } else if (!document.getElementById('change-password-modal').classList.contains('hidden')) {
             container = document.querySelector('#change-password-modal .form');
         } else {
@@ -314,16 +348,17 @@ class SocialMediaApp {
         if (container) {
             container.insertBefore(alert, container.firstChild);
             setTimeout(() => {
-                if (alert.parentNode) {
+                if (alert && alert.parentNode) {
                     alert.parentNode.removeChild(alert);
                 }
-            }, 5000);
+            }, 3000); // Reduced timeout to 3 seconds
         }
     }
 
     clearAlerts() {
-        document.querySelectorAll('.alert').forEach(alert => {
-            if (alert.parentNode) {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            if (alert && alert.parentNode) {
                 alert.parentNode.removeChild(alert);
             }
         });
